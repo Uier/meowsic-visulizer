@@ -2,7 +2,7 @@
 var gl;
 var program;
 
-var N = 5;  // The number of cubes will be (2N+1)^3
+var N = 10;  // The number of cubes will be (2N+1)^3
 
 var xAxis = 0;
 var yAxis = 1;
@@ -14,54 +14,54 @@ var paused = 0;
 var musicStarted = 0;
 
 // event handlers for mouse input (borrowed from "Learning WebGL" lesson 11)
-var mouseDown = false;
-var lastMouseX = null;
-var lastMouseY = null;
+// var mouseDown = false;
+// var lastMouseX = null;
+// var lastMouseY = null;
 
-var moonRotationMatrix = mat4();
+// var moonRotationMatrix = mat4();
 
-function handleMouseDown(event) {
-    mouseDown = true;
-    lastMouseX = event.clientX;
-	lastMouseY = event.clientY;
-}
+// function handleMouseDown(event) {
+//     mouseDown = true;
+//     lastMouseX = event.clientX;
+// 	lastMouseY = event.clientY;
+// }
 
-function handleMouseUp(event) {
-    mouseDown = false;
-}
+// function handleMouseUp(event) {
+//     mouseDown = false;
+// }
 
-function handleMouseMove(event) {
-    if (!mouseDown) {
-      return;
-    }
+// function handleMouseMove(event) {
+//     if (!mouseDown) {
+//       return;
+//     }
 
-    var newX = event.clientX;
-    var newY = event.clientY;
-    var deltaX = newX - lastMouseX;
-    var newRotationMatrix = rotate(deltaX/10, 0, 1, 0);
+//     var newX = event.clientX;
+//     var newY = event.clientY;
+//     var deltaX = newX - lastMouseX;
+//     var newRotationMatrix = rotate(deltaX/10, 0, 1, 0);
 
-    var deltaY = newY - lastMouseY;
-    newRotationMatrix = mult(rotate(deltaY/10, 1, 0, 0), newRotationMatrix);
+//     var deltaY = newY - lastMouseY;
+//     newRotationMatrix = mult(rotate(deltaY/10, 1, 0, 0), newRotationMatrix);
 
-    moonRotationMatrix = mult(newRotationMatrix, moonRotationMatrix);
+//     moonRotationMatrix = mult(newRotationMatrix, moonRotationMatrix);
 
-    lastMouseX = newX
-    lastMouseY = newY;
-}
+//     lastMouseX = newX
+//     lastMouseY = newY;
+// }
 
 // event handlers for button clicks
-function rotateX() {
-	paused = 0;
-    axis = xAxis;
-};
-function rotateY() {
-	paused = 0;
-	axis = yAxis;
-};
-function rotateZ() {
-	paused = 0;
-	axis = zAxis;
-};
+// function rotateX() {
+// 	paused = 0;
+//     axis = xAxis;
+// };
+// function rotateY() {
+// 	paused = 0;
+// 	axis = yAxis;
+// };
+// function rotateZ() {
+// 	paused = 0;
+// 	axis = zAxis;
+// };
 
 function startMusic() {
 	if (musicStarted) return;
@@ -79,7 +79,7 @@ function startMusic() {
   
   // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
     analyser.smoothingTimeConstant = 0.6;
-	analyser.fftSize = 512;
+	analyser.fftSize = 2048;
 
   // we have to connect the MediaElementSource with the analyser 
 	audioSrc.connect(analyser);
@@ -105,7 +105,7 @@ var modeling, viewing, projection;
 
 var volumeLoc;
 
-var numVertices  = 36;
+var numVertices = 18;
 
 var pointsArray = [];
 var colorsArray = [];
@@ -145,7 +145,7 @@ var vertexColors = [
 ];
 
 var eyePosition = vec4( 0.0, 0.0, 2.0, 1.0);
-var lightPosition = vec4( 0.0, 100.0, 200.0, 1.0 );
+var lightPosition = vec4( 0.0, 100.0, 100.0, 1.0 );
 
 var materialAmbient = vec4( 0.25, 0.25, 0.25, 1.0 );
 var materialDiffuse = vec4( 0.8, 0.8, 0.8, 1.0);
@@ -205,9 +205,13 @@ function colorCube()
     quad( 1, 0, 3, 2 );
     quad( 2, 3, 7, 6 );
     quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
-    quad( 4, 5, 6, 7 );
-    quad( 5, 4, 0, 1 );
+    // quad( 3, 0, 4, 7 );
+    // quad( 1, 1, 1, 1 );
+    // quad( 6, 5, 1, 2 );
+    // quad( 1, 1, 1, 1 );
+    // quad( 4, 5, 6, 7 );
+    // quad( 1, 1, 1, 1 );
+    // quad( 5, 4, 0, 1 );
 }
 
 var analyser;
@@ -252,9 +256,9 @@ window.onload = function init()
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW );
 
-    var vColor = gl.getAttribLocation( program, "vColor" );
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor );
+    // var vColor = gl.getAttribLocation( program, "vColor" );
+    // gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+    // gl.enableVertexAttribArray( vColor );
 
     // normal array atrribute buffer
 
@@ -289,61 +293,62 @@ window.onload = function init()
     modelingLoc   = gl.getUniformLocation(program, "modelingMatrix"); 
     viewingLoc    = gl.getUniformLocation(program, "viewingMatrix"); 
     projectionLoc = gl.getUniformLocation(program, "projectionMatrix"); 
-    lightMatrixLoc= gl.getUniformLocation(program, "lightMatrix"); 
+    // lightMatrixLoc= gl.getUniformLocation(program, "lightMatrix"); 
 
 	volumeLoc = gl.getUniformLocation(program, "volume");
 
-    gl.uniform4fv( gl.getUniformLocation(program, "eyePosition"), 
-       flatten(eyePosition) );
-    gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"), 
-       flatten(lightPosition) );
+    // gl.uniform4fv( gl.getUniformLocation(program, "eyePosition"), 
+    //    flatten(eyePosition) );
+    // gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"),
+       // flatten(lightPosition) );
     gl.uniform4fv( gl.getUniformLocation(program, "materialAmbient"),
-       flatten(materialAmbient));
+       flatten(materialAmbient) );
     gl.uniform4fv( gl.getUniformLocation(program, "materialDiffuse"),
        flatten(materialDiffuse) );
     gl.uniform4fv( gl.getUniformLocation(program, "materialSpecular"), 
-       flatten(materialSpecular) );	       
+       flatten(materialSpecular) );
     gl.uniform1f( gl.getUniformLocation(program, "shininess"), materialShininess);
 
     //event listeners for buttons 
-    document.getElementById( "xButton" ).onclick = rotateX;
-    document.getElementById( "yButton" ).onclick = rotateY;
-    document.getElementById( "zButton" ).onclick = rotateZ;
-    document.getElementById( "pButton" ).onclick = function() {paused=!paused;};
+    // document.getElementById( "xButton" ).onclick = rotateX;
+    // document.getElementById( "yButton" ).onclick = rotateY;
+    // document.getElementById( "zButton" ).onclick = rotateZ;
+    // document.getElementById( "pButton" ).onclick = function() {paused=!paused;};
     document.getElementById( "dButton" ).onclick = startMusic;
 	
 	// event handlers for mouse input (borrowed from "Learning WebGL" lesson 11)
-	canvas.onmousedown = handleMouseDown;
-    document.onmouseup = handleMouseUp;
-    document.onmousemove = handleMouseMove;
+	// canvas.onmousedown = handleMouseDown;
+    // document.onmouseup = handleMouseUp;
+    // document.onmousemove = handleMouseMove;
 
     render();
 };
 
 function render() {
-	modeling = mult(rotate(theta[xAxis], 1, 0, 0),
-	                mult(rotate(theta[yAxis], 0, 1, 0),rotate(theta[zAxis], 0, 0, 1)));
+	// modeling = mult(rotate(theta[xAxis], 1, 0, 0),
+	//                 mult(rotate(theta[yAxis], 0, 1, 0),rotate(theta[zAxis], 0, 0, 1)));
 
-	//if (paused)	modeling = moonRotationMatrix;
+	// if (paused)	modeling = moonRotationMatrix;
+    modeling = rotate(90, 1, 0, 0);
 	
 	viewing = lookAt(vec3(eyePosition), [0,0,0], [0,1,0]);
 
-	projection = perspective(45, 1.0, 1.0, 3.0);
+	projection = perspective(45, 1.0, 1.0, 2.0);
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
-    if (! paused) theta[axis] += 2.0;
-	gl.enable(gl.DEPTH_TEST);
+    // if (! paused) theta[axis] += 2.0;
+	// gl.enable(gl.DEPTH_TEST);
 
     gl.uniformMatrix4fv( viewingLoc,    0, flatten(viewing) );
 	gl.uniformMatrix4fv( projectionLoc, 0, flatten(projection) );
-	gl.uniformMatrix4fv( lightMatrixLoc,0, flatten(moonRotationMatrix) );
+	// gl.uniformMatrix4fv( lightMatrixLoc,0, flatten(moonRotationMatrix) );
 
 	// update data in frequencyData
     if (musicStarted) analyser.getByteFrequencyData(frequencyData);
 
 	// Uncomment the next line to see the frequencyData[] in the console
-	//console.log(frequencyData)
+	console.log(frequencyData)
 
 	var N2 = 2*N+1;
 	var step = 1.0/N2;
@@ -353,10 +358,10 @@ function render() {
 		// render frame based on values in frequencyData
 		if (musicStarted) gl.uniform1f( volumeLoc, frequencyData[Math.floor(256/N2)*(i+N)] /255 * N );	
 
-		for (j=-N; j<=N; j++) {
-			for (k=-0; k<=0; k++) {				
+		for (j=-0; j<=0; j++) {
+			for (k=-0; k<=0; k++) {
 //				var cloned = mult(mult(translate(step*i, step*j, step*k), scale(0.12, 0.12, 0.12)), modeling);
-				var cloned = mult(modeling, mult(translate(step*i, step*j, step*k), scale(size, size, size)));
+				var cloned = mult(modeling, mult(translate(step*i, step*j, step*k), scale(size, 0, size*3)));
 				
 				gl.uniformMatrix4fv( modelingLoc, 0, flatten(cloned) );
 				gl.drawArrays( gl.TRIANGLES, 0, numVertices );
