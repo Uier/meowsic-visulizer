@@ -103,6 +103,22 @@ void main()
 <br/>
 <audio id="myAudio" src="test.mp3" controls></audio>
 <br/>
+<script src="cube3_array_music.js"></script>
+<input type="file" id="rll" />
+<audio id="rllly" controls>
+	 <source src=(unknown) id="rlly" />
+</audio>
+<script type="text/javascript"> 
+	function handleFiles(event) {
+	var files = event.target.files;
+	$("#rlly").attr("src", URL.createObjectURL(files[0]));
+	document.getElementById("rllly").load();
+}
+if(document.getElementById("rll")){
+document.getElementById("rll").addEventListener("change", handleFiles, false);}
+</script>
+ 
+
 <canvas id="gl-canvas" width="1440" height="720">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
