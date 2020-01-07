@@ -31,9 +31,9 @@ void main()
 	fTexCoord = vTexCoord;
 
 	// Scale the vertex with the audio volume
-	vertex.z *= 1.0 + volume;
-	
-    gl_Position = projectionMatrix * viewingMatrix * modelingMatrix * vertex;
+	vertex.z *= 1.0 + volume*volume*volume*volume*0.001;
+
+	gl_Position = projectionMatrix * viewingMatrix * modelingMatrix * vertex;
 }
 </script>
 
