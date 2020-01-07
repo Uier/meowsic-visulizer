@@ -32,8 +32,8 @@ void main()
 
 	// Scale the vertex with the audio volume
 	vertex.z *= 1.0 + volume*volume*volume*volume*0.001;
-
-	gl_Position = projectionMatrix * viewingMatrix * modelingMatrix * vertex;
+	
+    gl_Position = projectionMatrix * viewingMatrix * modelingMatrix * vertex;
 }
 </script>
 
@@ -89,6 +89,7 @@ void main()
 <script type="text/javascript" src="Common/initShaders.js"></script>
 <script type="text/javascript" src="Common/MV.js"></script>
 <script type="text/javascript" src="cube3_array_music.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 
 <body>
@@ -99,27 +100,40 @@ void main()
 <button id="zButton">Rotate Z</button> -->
 <!-- <br/> -->
 <!-- <button id="pButton" style="background-color:#00ff00">Pause</button> -->
-<button id="dButton" style="background-color:#eeee22">Start Music</button>
+<audio id="myAudio" controls=""></audio>
 <br/>
-<audio id="myAudio" src="test.mp3" controls></audio>
+<label id="musicFileWrapper">
+    <span id="musicFileName">Select your music.</span>
+    <input id="rll" type="file" accept="audio/*">
+</label>
 <br/>
-<script src="cube3_array_music.js"></script>
-<input type="file" id="rll" />
-<audio id="rllly" controls>
-	 <source src=(unknown) id="rlly" />
-</audio>
-<script type="text/javascript"> 
-	function handleFiles(event) {
-	var files = event.target.files;
-	$("#rlly").attr("src", URL.createObjectURL(files[0]));
-	document.getElementById("rllly").load();
-}
-if(document.getElementById("rll")){
-document.getElementById("rll").addEventListener("change", handleFiles, false);}
+<button id="myBtn" disabled="">Start Music</button>
+<br/>
+
+
+<script type="text/javascript">
+	var files = null;
+	document.getElementById("rll").addEventListener("change", function(event) {
+		files = event.target.files;
+		document.getElementById("myAudio").src = URL.createObjectURL(files[0]);
+		// load music
+        document.getElementById("rll").style.display = "none";
+        document.getElementById("musicFileName").innerText = "Loading...";
+	}, false);
+	document.getElementById("myAudio").addEventListener('canplaythrough', function(event) { 
+		// set file name & button press enabled 
+	    document.getElementById("musicFileName").innerText = files[0].name;
+	    document.getElementById("myBtn").disabled = false;
+	}, false);
+	document.getElementById("myAudio").addEventListener('play', function(event) {
+		// make audio play button also can start visualizer.
+		document.getElementById("myBtn").click();
+	}, false);
 </script>
+<script src="cube3_array_music.js"></script>
  
 
-<canvas id="gl-canvas" width="1440" height="720">
+<canvas id="gl-canvas" width="1000" height="500">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
 

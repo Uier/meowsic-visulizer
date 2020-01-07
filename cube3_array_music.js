@@ -76,7 +76,7 @@ function startMusic() {
   
 
 	analyser = context.createAnalyser();
-  
+
   // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
     analyser.smoothingTimeConstant = 0.6;
 	analyser.fftSize = 2048;
@@ -314,7 +314,7 @@ window.onload = function init()
     // document.getElementById( "yButton" ).onclick = rotateY;
     // document.getElementById( "zButton" ).onclick = rotateZ;
     // document.getElementById( "pButton" ).onclick = function() {paused=!paused;};
-    document.getElementById( "dButton" ).onclick = startMusic;
+    document.getElementById( "myBtn" ).onclick = startMusic;
 	
 	// event handlers for mouse input (borrowed from "Learning WebGL" lesson 11)
 	// canvas.onmousedown = handleMouseDown;
@@ -348,7 +348,7 @@ function render() {
     if (musicStarted) analyser.getByteFrequencyData(frequencyData);
 
 	// Uncomment the next line to see the frequencyData[] in the console
-	console.log(frequencyData)
+	// console.log(frequencyData)
 
 	var N2 = 2*N+1;
 	var step = 1.0/N2;
