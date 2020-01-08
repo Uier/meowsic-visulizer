@@ -79,8 +79,8 @@ void main()
 
 	float Ks = pow( max(dot(N, H), 0.0), shininess );
     vec4  specular = Ks * materialSpecular;
-
-    gl_FragColor = (ambient + diffuse) * texture2D( texture, fTexCoord ) + specular;
+	vec4  tt = vec4(0.0,1.0,0.5,1.0);
+    gl_FragColor =texture2D( texture, fTexCoord ) + specular;
     //gl_FragColor = (ambient + diffuse) * (0.5+fPosition*0.5) + specular;
 }
 </script>
