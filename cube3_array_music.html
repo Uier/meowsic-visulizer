@@ -57,7 +57,7 @@ void main()
 				<div class="input-group-sm mb-3">
 					<span id="musicFileName">Select your music.</span>
 					<div id="audioWrapper" class="custom-file">
-					  <input id="audioInput" type="file" class="custom-file-input" accept="audio/*" aria-describedby="inputGroupFileAddon01">
+					  <input id="audioInput" type="file" accept="audio/*" aria-describedby="inputGroupFileAddon01">
 					  <label class="custom-file-label" for="audioInput">Choose file</label>
 					</div>
 				</div>
@@ -71,15 +71,15 @@ void main()
 				</div>
 				<div class="col-3 form-group">
 					<label for="redRange">Red</label>
-					<input id="redRange" min="0" max="255" value="255" type="range" class="form-control-range">
+					<input id="redRange" min="0" max="255" value="255" type="range" class="slider form-control-range">
 				</div>
 				<div class="col-3 form-group">
 					<label for="greenRange">Green</label>
-					<input id="greenRange" min="0" max="255" value="51" type="range" class="form-control-range">
+					<input id="greenRange" min="0" max="255" value="51" type="range" class="slider form-control-range">
 				</div>
 				<div class="col-3 form-group">
 					<label for="blueRange">Blue</label>
-					<input id="blueRange" min="0" max="255" value="76" type="range" class="form-control-range">
+					<input id="blueRange" min="0" max="255" value="76" type="range" class="slider form-control-range">
 				</div>
 			</div>
 			<hr>
@@ -149,6 +149,12 @@ hr {
 	border-color: rgba(0.5, 0.5, 0.5, 0.25);
 	padding: 0;
 	margin: 0.2em;
+}
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 5px;  
 }
 </style>
 

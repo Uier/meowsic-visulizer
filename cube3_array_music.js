@@ -116,7 +116,7 @@ function startMusic() {
 	analyser = context.createAnalyser();
 
   // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
-    analyser.smoothingTimeConstant = 0.73;
+    analyser.smoothingTimeConstant = 0.75;
 	analyser.fftSize = 2048;
 
   // we have to connect the MediaElementSource with the analyser 
@@ -148,5 +148,6 @@ function colorPicker() {
     let G = document.getElementById( "greenRange" ).value / 255;
     let B = document.getElementById( "blueRange" ).value / 255;
     var colorLoc = gl.getUniformLocation(program, "uColor");
+    console.log(R + ' ' + G + ' ' + B);
     gl.uniform4fv(colorLoc, [R, G, B, 1.0]); 
 }
