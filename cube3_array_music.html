@@ -8,8 +8,10 @@ precision mediump float;
 attribute vec2 vPosition;
 attribute float vVolume;
 attribute vec2 vTexCoord;
+attribute float vTexIdx;
 
 varying vec2 fTexCoord;
+varying float fTexIdx;
 
 void main()
 {
@@ -18,25 +20,37 @@ void main()
 	float volume = vVolume;
 
 	fTexCoord = vTexCoord;
+	fTexIdx = vTexIdx;
 
 	// Scale the vertex with the audio volume
-	vertex.y *= volume*volume*volume*0.001;
+	vertex.y *= volume;
 	
     gl_Position = vec4(vertex.x, vertex.y, 0.0, 1.0);
 }
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
+#define numTextures 2
 precision mediump float;
 
-uniform sampler2D texture;
+uniform sampler2D u_texture[numTextures];
 
 varying vec2 fTexCoord;
+varying float fTexIdx;
+
+vec4 getSampleFromArray(sampler2D textures[numTextures], int ndx, vec2 uv) {
+    for (int i = 0; i < numTextures; ++i) {
+      vec4 c = texture2D(textures[i], uv);
+      if (i == ndx) return c;
+	}
+	return vec4(0);
+}
+
 
 void main()
 {
-	// gl_FragColor = texture2D(texture, fTexCoord);
-	gl_FragColor = vec4(1.0, 0.2, 0.4, 1.0);
+	gl_FragColor = getSampleFromArray(u_texture, int(fTexIdx), fTexCoord);
+	// gl_FragColor = vec4(1.0, 0.2, 0.4, 1.0);
 }
 </script>
 
@@ -50,18 +64,22 @@ void main()
 </head>
 
 <body>
-<audio id="myAudio"></audio>
 <div class="container" style="padding: 10px; background-color: teal;">
-
-	<div class="row" style="margin: 0;">
-		<label id="musicFileWrapper" style="color: white;">
-			<span id="musicFileName">Select your music.</span>
-			<input id="audioInput" type="file" accept="audio/*">
-		</label>
+	<div class="col-6">
+		<div class="row" style="margin-bottom: 0.5em;">
+			<audio id="myAudio" controls></audio>
+		</div>
+		<div class="row">
+			<label id="musicFileWrapper" style="color: white;">
+				<span id="musicFileName">Select your music.</span>
+				<input id="audioInput" type="file" accept="audio/*">
+			</label>
+		</div>
 	</div>
-	<div class="row" style="margin: 0;">
-		<button id="myBtn" class="btn btn-primary btn-sm" disabled>Start Music</button id="myBtn">
+	<div class="col-6">
+		
 	</div>
+	<button id="myBtn" style="display: none;" disabled>Start Music</button id="myBtn">
 </div>
 
 <script type="text/javascript">
@@ -98,6 +116,7 @@ void main()
 }
 body {
 	background-color: black;
+	padding: 0.6em;
 }
 </style>
 
