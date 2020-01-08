@@ -4,64 +4,11 @@ var program;
 
 var N = 10;  // The number of cubes will be (2N+1)^3
 
-var xAxis = 0;
-var yAxis = 1;
-var zAxis = 2;
-
-var axis = 0;
-var theta = [ 0, 0, 0 ];
-var paused = 0;
+// var axis = 0;
+// var theta = [ 0, 0, 0 ];
 var musicStarted = 0;
 
-// event handlers for mouse input (borrowed from "Learning WebGL" lesson 11)
-// var mouseDown = false;
-// var lastMouseX = null;
-// var lastMouseY = null;
-
 // var moonRotationMatrix = mat4();
-
-// function handleMouseDown(event) {
-//     mouseDown = true;
-//     lastMouseX = event.clientX;
-// 	lastMouseY = event.clientY;
-// }
-
-// function handleMouseUp(event) {
-//     mouseDown = false;
-// }
-
-// function handleMouseMove(event) {
-//     if (!mouseDown) {
-//       return;
-//     }
-
-//     var newX = event.clientX;
-//     var newY = event.clientY;
-//     var deltaX = newX - lastMouseX;
-//     var newRotationMatrix = rotate(deltaX/10, 0, 1, 0);
-
-//     var deltaY = newY - lastMouseY;
-//     newRotationMatrix = mult(rotate(deltaY/10, 1, 0, 0), newRotationMatrix);
-
-//     moonRotationMatrix = mult(newRotationMatrix, moonRotationMatrix);
-
-//     lastMouseX = newX
-//     lastMouseY = newY;
-// }
-
-// event handlers for button clicks
-// function rotateX() {
-// 	paused = 0;
-//     axis = xAxis;
-// };
-// function rotateY() {
-// 	paused = 0;
-// 	axis = yAxis;
-// };
-// function rotateZ() {
-// 	paused = 0;
-// 	axis = zAxis;
-// };
 
 function startMusic() {
 	if (musicStarted) return;
@@ -166,11 +113,11 @@ function configureTexture( image ) {
 
 function quad(a, b, c, d) {
 
-     var t1 = subtract(vertices[b], vertices[a]);
-     var t2 = subtract(vertices[c], vertices[b]);
-     var normal = cross(t1, t2);  // cross returns vec3
-	 normal.push(0.0); // convert to vec4
-     normal = normalize(normal);
+    var t1 = subtract(vertices[b], vertices[a]);
+    var t2 = subtract(vertices[c], vertices[b]);
+    var normal = cross(t1, t2);  // cross returns vec3
+    normal.push(0.0); // convert to vec4
+    normal = normalize(normal);
 
     pointsArray.push(vertices[a]); 
 	 colorsArray.push(vertexColors[a]);
@@ -200,25 +147,23 @@ function quad(a, b, c, d) {
 }
 
 
-function colorCube()
-{
+function colorCube() {
     quad( 1, 0, 3, 2 );
     quad( 2, 3, 7, 6 );
     quad( 3, 0, 4, 7 );
-    // quad( 3, 0, 4, 7 );
+    quad( 3, 0, 4, 7 );
     // quad( 1, 1, 1, 1 );
-    // quad( 6, 5, 1, 2 );
+    quad( 6, 5, 1, 2 );
     // quad( 1, 1, 1, 1 );
-    // quad( 4, 5, 6, 7 );
+    quad( 4, 5, 6, 7 );
     // quad( 1, 1, 1, 1 );
-    // quad( 5, 4, 0, 1 );
+    quad( 5, 4, 0, 1 );
 }
 
 var analyser;
 var frequencyData = new Uint8Array();
 
-window.onload = function init()
-{
+window.onload = function init() {
     var canvas = document.getElementById( "gl-canvas" );
     
     gl = WebGLUtils.setupWebGL( canvas );
@@ -310,16 +255,7 @@ window.onload = function init()
     gl.uniform1f( gl.getUniformLocation(program, "shininess"), materialShininess);
 
     //event listeners for buttons 
-    // document.getElementById( "xButton" ).onclick = rotateX;
-    // document.getElementById( "yButton" ).onclick = rotateY;
-    // document.getElementById( "zButton" ).onclick = rotateZ;
-    // document.getElementById( "pButton" ).onclick = function() {paused=!paused;};
     document.getElementById( "myBtn" ).onclick = startMusic;
-	
-	// event handlers for mouse input (borrowed from "Learning WebGL" lesson 11)
-	// canvas.onmousedown = handleMouseDown;
-    // document.onmouseup = handleMouseUp;
-    // document.onmousemove = handleMouseMove;
 
     render();
 };
@@ -328,17 +264,13 @@ function render() {
 	// modeling = mult(rotate(theta[xAxis], 1, 0, 0),
 	//                 mult(rotate(theta[yAxis], 0, 1, 0),rotate(theta[zAxis], 0, 0, 1)));
 
-	// if (paused)	modeling = moonRotationMatrix;
     modeling = rotate(90, 1, 0, 0);
 	
 	viewing = lookAt(vec3(eyePosition), [0,0,0], [0,1,0]);
 
 	projection = perspective(45, 1.0, 1.0, 2.0);
 
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-
-    // if (! paused) theta[axis] += 2.0;
-	// gl.enable(gl.DEPTH_TEST);
+    gl.clear( gl.COLOR_BUFFER_BIT );
 
     gl.uniformMatrix4fv( viewingLoc,    0, flatten(viewing) );
 	gl.uniformMatrix4fv( projectionLoc, 0, flatten(projection) );
