@@ -5,73 +5,38 @@
 <script id="vertex-shader" type="x-shader/x-vertex">
 precision mediump float;
 
-attribute vec4 vPosition;
-attribute vec4 vColor;
-attribute vec4 vNormal;
+attribute vec2 vPosition;
+attribute float vVolume;
 attribute vec2 vTexCoord;
 
-varying vec4 fPosition;
-varying vec4 fColor;
-varying vec4 fNormal;
 varying vec2 fTexCoord;
-
-uniform mat4 modelingMatrix;
-uniform mat4 viewingMatrix;
-uniform mat4 projectionMatrix;
-uniform float volume;
 
 void main()
 {
-	vec4 vertex = vPosition;
-    vec4 N = normalize( modelingMatrix * vNormal );	// Normal vector
+	vec2 vertex = vPosition;
 
-	fPosition = modelingMatrix * vPosition;
-    fColor = vColor;
-	fNormal = N;
+	float volume = vVolume;
+
 	fTexCoord = vTexCoord;
 
 	// Scale the vertex with the audio volume
-	vertex.z *= 1.0 + volume*volume*volume*volume*0.001;
+	vertex.y *= volume*volume*volume*0.001;
 	
-    gl_Position = projectionMatrix * viewingMatrix * modelingMatrix * vertex;
+    gl_Position = vec4(vertex.x, vertex.y, 0.0, 1.0);
 }
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
 
-// Note that the following are interpolated between vertices.
-varying vec4 fPosition;
-varying vec4 fColor;  
-varying vec4 fNormal;
-varying vec2 fTexCoord;
-
 uniform sampler2D texture;
 
-uniform mat4 modelingMatrix;
-uniform mat4 viewingMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 lightMatrix;
-uniform vec4 eyePosition;
-uniform vec4 lightPosition;
-uniform vec4 materialAmbient;
-uniform vec4 materialDiffuse;
-uniform vec4 materialSpecular;
-uniform float shininess;
+varying vec2 fTexCoord;
 
 void main()
 {
-    vec4 L = normalize( lightMatrix*lightPosition - fPosition ); // Light vector
-    vec4 N = fNormal;	// Normal vector
-	vec4 V = normalize( eyePosition - fPosition );		// Eye vector.
-    vec4 H = normalize( L + V );  // Halfway vector in the modified Phong model
-
-	// Normal variation stored in the texture is within [0,1]. Convert it to [-1, 1]
-	vec4 texel = texture2D( texture, fTexCoord ) * 2.0 - 1.0;
-	N.xy += texel.xy;
-	N = normalize( N );
-
-    gl_FragColor = vec4(1.0, 0.2, 0.5, 1.0);
+	// gl_FragColor = texture2D(texture, fTexCoord);
+	gl_FragColor = vec4(1.0, 0.2, 0.4, 1.0);
 }
 </script>
 
@@ -80,20 +45,24 @@ void main()
 <script type="text/javascript" src="Common/MV.js"></script>
 <script type="text/javascript" src="cube3_array_music.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </head>
 
-<body bgcolor="black">
+<body>
+<audio id="myAudio"></audio>
+<div class="container" style="padding: 10px; background-color: teal;">
 
-<audio id="myAudio" controls=""></audio>
-<br/>
-<label id="musicFileWrapper">
-    <span id="musicFileName">Select your music.</span>
-    <input id="audioInput" type="file" accept="audio/*">
-</label>
-<br/>
-<button id="myBtn" disabled="">Start Music</button>
-<br/>
-
+	<div class="row" style="margin: 0;">
+		<label id="musicFileWrapper" style="color: white;">
+			<span id="musicFileName">Select your music.</span>
+			<input id="audioInput" type="file" accept="audio/*">
+		</label>
+	</div>
+	<div class="row" style="margin: 0;">
+		<button id="myBtn" class="btn btn-primary btn-sm" disabled>Start Music</button id="myBtn">
+	</div>
+</div>
 
 <script type="text/javascript">
 	var files = null;
@@ -116,10 +85,21 @@ void main()
 </script>
 <script src="cube3_array_music.js"></script>
  
+<div class="container">
+	<canvas id="gl-canvas" width="1120" height="630">
+	Oops ... your browser doesn't support the HTML5 canvas element
+	</canvas>
+</div>
 
-<canvas id="gl-canvas" width="1000" height="500">
-Oops ... your browser doesn't support the HTML5 canvas element
-</canvas>
+
+<style>
+. {
+	margin: 0;
+}
+body {
+	background-color: black;
+}
+</style>
 
 </body>
 </html>

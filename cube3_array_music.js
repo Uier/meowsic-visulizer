@@ -1,144 +1,70 @@
-
 var gl;
 var program;
 
-var N = 15;  // The number of cubes will be (2N+1)^3
+var N = 15;
 
-// var axis = 0;
-// var theta = [ 0, 0, 0 ];
+var numVertices = N * 2 + 1;
+
 var musicStarted = 0;
 
-var moonRotationMatrix = mat4();
-
-function startMusic() {
-	if (musicStarted) return;
-
-  //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  // Experimenting with HTML5 audio
- 
-	var context = new AudioContext();
-	var audio = document.getElementById('myAudio');
-	var audioSrc = context.createMediaElementSource(audio);
-	var sourceJs = context.createScriptProcessor(2048); // createJavaScriptNode() deprecated.
-  
-
-	analyser = context.createAnalyser();
-
-  // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
-    analyser.smoothingTimeConstant = 0.6;
-	analyser.fftSize = 2048;
-
-  // we have to connect the MediaElementSource with the analyser 
-	audioSrc.connect(analyser);
-	analyser.connect(sourceJs);
-	sourceJs.buffer = audioSrc.buffer;
-	sourceJs.connect(context.destination);
-	audioSrc.connect(context.destination);
-
- 	sourceJs.onaudioprocess = function(e) {
-		// frequencyBinCount tells you how many values you'll receive from the analyser
-		frequencyData = new Uint8Array(analyser.frequencyBinCount);
-		analyser.getByteFrequencyData(frequencyData);
-	};
-
-	musicStarted = 1;
-	audio.play();
- //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-	
-}
-
-// ModelView and Projection matrices
-var modelingLoc, viewingLoc, projectionLoc, lightMatrixLoc;
-var modeling, viewing, projection;
-
-var volumeLoc;
-
-var numVertices = 18;
-
 var pointsArray = [];
-var colorsArray = [];
-var normalsArray = [];
+var volumeArray = [];
 var texCoordsArray = [];
 
 var texture;
 
 var texCoord = [
-    vec2(0, 2),
+    vec2(0, 1),
+    vec2(1, 1),
     vec2(0, 0),
     vec2(1, 0),
-    vec2(1, 2)
 ];
 
-var vertices = [
-	vec4( -0.5, -0.5,  0.5, 1 ),
-	vec4( -0.5,  0.5,  0.5, 1 ),
-	vec4(  0.5,  0.5,  0.5, 1 ),
-	vec4(  0.5, -0.5,  0.5, 1 ),
-	vec4( -0.5, -0.5, -0.5, 1 ),
-	vec4( -0.5,  0.5, -0.5, 1 ),
-	vec4(  0.5,  0.5, -0.5, 1 ),
-	vec4(  0.5, -0.5, -0.5, 1 )
-];
-
-// Using off-white cube for testing
-var vertexColors = [
-	vec4( 1.0, 1.0, 0.8, 1.0 ),  
-	vec4( 1.0, 1.0, 0.8, 1.0 ),  
-	vec4( 1.0, 1.0, 0.8, 1.0 ),  
-	vec4( 1.0, 1.0, 0.8, 1.0 ),  
-	vec4( 1.0, 1.0, 0.8, 1.0 ),  
-	vec4( 1.0, 1.0, 0.8, 1.0 ),  
-	vec4( 1.0, 1.0, 0.8, 1.0 ),  
-	vec4( 1.0, 1.0, 0.8, 1.0 )
-];
-
-var eyePosition = vec4( 0.0, 0.0, 2.0, 1.0);
-var lightPosition = vec4( 0.0, 100.0, 100.0, 1.0 );
-
-function quad(a, b, c, d) {
-
-    var t1 = subtract(vertices[b], vertices[a]);
-    var t2 = subtract(vertices[c], vertices[b]);
-    var normal = cross(t1, t2);  // cross returns vec3
-    normal.push(0.0); // convert to vec4
-    normal = normalize(normal);
-
-    pointsArray.push(vertices[a]); 
-	 colorsArray.push(vertexColors[a]);
-     normalsArray.push(normal); 
-     texCoordsArray.push(texCoord[0]);
-    pointsArray.push(vertices[b]); 
-	 colorsArray.push(vertexColors[b]);
-     normalsArray.push(normal); 
-     texCoordsArray.push(texCoord[1]);
-    pointsArray.push(vertices[c]); 
-	 colorsArray.push(vertexColors[c]);
-     normalsArray.push(normal);   
-     texCoordsArray.push(texCoord[2]);
-
-    pointsArray.push(vertices[a]);  
-	 colorsArray.push(vertexColors[a]);
-     normalsArray.push(normal); 
-     texCoordsArray.push(texCoord[0]);
-    pointsArray.push(vertices[c]); 
-	 colorsArray.push(vertexColors[c]);
-     normalsArray.push(normal); 
-     texCoordsArray.push(texCoord[2]);
-    pointsArray.push(vertices[d]); 
-	 colorsArray.push(vertexColors[d]);
-     normalsArray.push(normal);
-     texCoordsArray.push(texCoord[3]);	 
+// place one square into pointsArray
+function square(midX, midY, width, height) {
+    let delX = width / 2;
+    let delY = height / 2;
+    pointsArray.push(vec2(midX - delX, midY + delY)); // left up
+    // console.log(midX - delX, midY + delY); // left up
+    texCoordsArray.push(texCoord[0]);
+    pointsArray.push(vec2(midX + delX, midY + delY)); // right up
+    // console.log(midX + delX, midY + delY); // right up
+    texCoordsArray.push(texCoord[1]);
+    pointsArray.push(vec2(midX - delX, midY - delY)); // left down
+    // console.log(midX - delX, midY - delY); // left down
+    texCoordsArray.push(texCoord[2]);
+    pointsArray.push(vec2(midX + delX, midY + delY)); // right up
+    // console.log(midX + delX, midY + delY); // right up
+    texCoordsArray.push(texCoord[1]);
+    pointsArray.push(vec2(midX - delX, midY - delY)); // left down
+    // console.log(midX - delX, midY - delY); // left down
+    texCoordsArray.push(texCoord[2]);
+    pointsArray.push(vec2(midX + delX, midY - delY)); // right down
+    console.log(midX, midY); // right down
+    texCoordsArray.push(texCoord[3]);
 }
-
 
 function colorCube() {
-    quad( 1, 0, 3, 2 );
-    quad( 2, 3, 7, 6 );
-    quad( 3, 0, 4, 7 );
-    quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
-    quad( 4, 5, 6, 7 );
-    quad( 5, 4, 0, 1 );
+    let padding = 2 / (N * 6 + 4);
+    let width = padding * 2;
+    let delta = width + padding;
+    let leftBorder = -1+padding+(width/2);
+    for ( let i=0; i<numVertices; i++ )
+        square( leftBorder+i*delta, 0, width, 0.5 );
 }
+
+// set a image to texture buffer
+// configureImage(src, n) {
+//     var image = new Image();
+//     image.onload = function () {
+//         gl.activeTexture(gl.TEXTURE0 + n);
+//         gl.bindTexture(gl.TEXTURE_2D, this.textures[n]);
+//         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+//     }.bind(this);
+//     image.src = src;
+
+//     return image;
+// }
 
 var analyser;
 var frequencyData = new Uint8Array();
@@ -160,43 +86,21 @@ window.onload = function init() {
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-	// Generate pointsArray[], colorsArray[] and normalsArray[] from vertices[] and vertexColors[].
+	// Generate pointsArray[]
 	// We don't use indices and ELEMENT_ARRAY_BUFFER (as in previous example)
 	// because we need to assign different face normals to shared vertices.
 	colorCube();
     
     // vertex array attribute buffer
-    
     var vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW );
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
+    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-    // color array atrribute buffer
-    
-    var cBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW );
-
-    // var vColor = gl.getAttribLocation( program, "vColor" );
-    // gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    // gl.enableVertexAttribArray( vColor );
-
-    // normal array atrribute buffer
-
-    var nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
-    
-    var vNormal = gl.getAttribLocation( program, "vNormal" );
-    gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vNormal );
-
     // texture-coordinate array atrribute buffer
-
     var tBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, tBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW );
@@ -205,14 +109,9 @@ window.onload = function init() {
     gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vTexCoord );
 
-
-	// uniform variables in shaders
-    modelingLoc   = gl.getUniformLocation(program, "modelingMatrix"); 
-    viewingLoc    = gl.getUniformLocation(program, "viewingMatrix"); 
-    projectionLoc = gl.getUniformLocation(program, "projectionMatrix"); 
-    lightMatrixLoc= gl.getUniformLocation(program, "lightMatrix"); 
-
-    volumeLoc = gl.getUniformLocation(program, "volume");
+    // setup textures (cat body, cat head)
+    // configureImage('image/cat-body.png', 0);
+    // configureImage('image/cat-head.png', 1);
 
     //event listeners for buttons 
     document.getElementById( "myBtn" ).onclick = startMusic;
@@ -221,46 +120,67 @@ window.onload = function init() {
 };
 
 function render() {
-	// modeling = mult(rotate(theta[xAxis], 1, 0, 0),
-	//                 mult(rotate(theta[yAxis], 0, 1, 0),rotate(theta[zAxis], 0, 0, 1)));
-
-    modeling = rotate(90.1, 1, 0, 0);
-	
-	viewing = lookAt(vec3(eyePosition), [0,0,0], [0,1,0]);
-
-	projection = perspective(45, 1.0, 1.0, 2.0);
-
     gl.clear( gl.COLOR_BUFFER_BIT );
-
-    gl.uniformMatrix4fv( viewingLoc,    0, flatten(viewing) );
-	gl.uniformMatrix4fv( projectionLoc, 0, flatten(projection) );
-	gl.uniformMatrix4fv( lightMatrixLoc,0, flatten(moonRotationMatrix) );
 
 	// update data in frequencyData
     if (musicStarted) analyser.getByteFrequencyData(frequencyData);
 
-	// Uncomment the next line to see the frequencyData[] in the console
-	// console.log(frequencyData)
+    // render frame based on values in frequencyData
+    if (musicStarted)  {
+        volumeArray = [];
+        for ( let i=-N; i<=N; i++ ) {
+            volumeArray.push(frequencyData[Math.floor(256/numVertices)*(i+N)] / 255 * N );
+            volumeArray.push(frequencyData[Math.floor(256/numVertices)*(i+N)] / 255 * N );
+            volumeArray.push(10);
+            volumeArray.push(frequencyData[Math.floor(256/numVertices)*(i+N)] / 255 * N );
+            volumeArray.push(10);
+            volumeArray.push(10);
+        }
 
-	var N2 = 2*N+1;
-	var step = 1.0/N2;
-	var size = step * 0.6;
-	
-	for (i=-N; i<=N; i++) {
-		// render frame based on values in frequencyData
-        // console.log(frequencyData[Math.floor(256/N2)*(i+N)]);
-		if (musicStarted) gl.uniform1f( volumeLoc, frequencyData[Math.floor(256/N2)*(i+N)] /255 * N );	
+        var vBuffer = gl.createBuffer();
+        gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(volumeArray), gl.STATIC_DRAW );
 
-		for (j=-0; j<=0; j++) {
-			for (k=-0; k<=0; k++) {
-//				var cloned = mult(mult(translate(step*i, step*j, step*k), scale(0.12, 0.12, 0.12)), modeling);
-				var cloned = mult(modeling, mult(translate(step*i, 0, step*k), scale(step*0.5, 0, step)));
-				
-				gl.uniformMatrix4fv( modelingLoc, 0, flatten(cloned) );
-				gl.drawArrays( gl.TRIANGLES, 0, numVertices );
-			}
-		}
-	}
+        var vVolume = gl.getAttribLocation( program, "vVolume" );
+        gl.vertexAttribPointer( vVolume, 1, gl.FLOAT, false, 0, 0 );
+        gl.enableVertexAttribArray( vVolume );
+    }
+    gl.drawArrays( gl.TRIANGLES, 0, numVertices*6 );
 
     requestAnimFrame( render );
+}
+
+function startMusic() {
+	if (musicStarted) return;
+
+  //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  // Experimenting with HTML5 audio
+ 
+	var context = new AudioContext();
+	var audio = document.getElementById('myAudio');
+	var audioSrc = context.createMediaElementSource(audio);
+	var sourceJs = context.createScriptProcessor(2048); // createJavaScriptNode() deprecated.
+
+	analyser = context.createAnalyser();
+
+  // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
+    analyser.smoothingTimeConstant = 0.8;
+	analyser.fftSize = 2048;
+
+  // we have to connect the MediaElementSource with the analyser 
+	audioSrc.connect(analyser);
+	analyser.connect(sourceJs);
+	sourceJs.buffer = audioSrc.buffer;
+	sourceJs.connect(context.destination);
+	audioSrc.connect(context.destination);
+
+ 	sourceJs.onaudioprocess = function(e) {
+		// frequencyBinCount tells you how many values you'll receive from the analyser
+		frequencyData = new Uint8Array(analyser.frequencyBinCount);
+		analyser.getByteFrequencyData(frequencyData);
+	};
+
+	musicStarted = 1;
+	audio.play();
+ //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-	
 }
