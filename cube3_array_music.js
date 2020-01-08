@@ -94,23 +94,6 @@ var vertexColors = [
 var eyePosition = vec4( 0.0, 0.0, 2.0, 1.0);
 var lightPosition = vec4( 0.0, 100.0, 100.0, 1.0 );
 
-var materialAmbient = vec4( 0.25, 0.25, 0.25, 1.0 );
-var materialDiffuse = vec4( 0.8, 0.8, 0.8, 1.0);
-var materialSpecular = vec4( 1.0, 0.0, 0.0, 1.0 );
-var materialShininess = 100.0;
-
-function configureTexture( image ) {
-    texture = gl.createTexture();
-    gl.bindTexture( gl.TEXTURE_2D, texture );
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image );
-    gl.generateMipmap( gl.TEXTURE_2D );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
-    
-    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
-}
-
 function quad(a, b, c, d) {
 
     var t1 = subtract(vertices[b], vertices[a]);
@@ -152,11 +135,8 @@ function colorCube() {
     quad( 2, 3, 7, 6 );
     quad( 3, 0, 4, 7 );
     quad( 3, 0, 4, 7 );
-    // quad( 1, 1, 1, 1 );
     quad( 6, 5, 1, 2 );
-    // quad( 1, 1, 1, 1 );
     quad( 4, 5, 6, 7 );
-    // quad( 1, 1, 1, 1 );
     quad( 5, 4, 0, 1 );
 }
 
@@ -225,14 +205,6 @@ window.onload = function init() {
     gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vTexCoord );
 
-    //
-    // Initialize a texture
-    //
-    var image = new Image();
-    image.onload = function() { 
-        configureTexture( image );
-    }
-    image.src = "bump.jpg";
 
 	// uniform variables in shaders
     modelingLoc   = gl.getUniformLocation(program, "modelingMatrix"); 
@@ -241,18 +213,6 @@ window.onload = function init() {
     lightMatrixLoc= gl.getUniformLocation(program, "lightMatrix"); 
 
     volumeLoc = gl.getUniformLocation(program, "volume");
-
-    // gl.uniform4fv( gl.getUniformLocation(program, "eyePosition"), 
-    //    flatten(eyePosition) );
-    // gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"),
-       // flatten(lightPosition) );
-    gl.uniform4fv( gl.getUniformLocation(program, "materialAmbient"),
-       flatten(materialAmbient) );
-    gl.uniform4fv( gl.getUniformLocation(program, "materialDiffuse"),
-       flatten(materialDiffuse) );
-    gl.uniform4fv( gl.getUniformLocation(program, "materialSpecular"), 
-       flatten(materialSpecular) );
-    gl.uniform1f( gl.getUniformLocation(program, "shininess"), materialShininess);
 
     //event listeners for buttons 
     document.getElementById( "myBtn" ).onclick = startMusic;

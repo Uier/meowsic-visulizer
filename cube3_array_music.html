@@ -70,18 +70,8 @@ void main()
 	vec4 texel = texture2D( texture, fTexCoord ) * 2.0 - 1.0;
 	N.xy += texel.xy;
 	N = normalize( N );
-	
-    // Compute terms in the illumination equation
-    vec4 ambient = materialAmbient;
 
-    float Kd = max( dot(L, N), 0.0 );
-    vec4  diffuse = Kd * materialDiffuse;
-
-	float Ks = pow( max(dot(N, H), 0.0), shininess );
-    vec4  specular = Ks * materialSpecular;
-	vec4  tt = vec4(0.0,1.0,0.5,1.0);
-    gl_FragColor =texture2D( texture, fTexCoord ) + specular;
-    //gl_FragColor = (ambient + diffuse) * (0.5+fPosition*0.5) + specular;
+    gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
 }
 </script>
 
@@ -94,17 +84,11 @@ void main()
 
 <body>
 
-<!-- <br/>
-<button id="xButton">Rotate X</button>
-<button id="yButton">Rotate Y</button>
-<button id="zButton">Rotate Z</button> -->
-<!-- <br/> -->
-<!-- <button id="pButton" style="background-color:#00ff00">Pause</button> -->
 <audio id="myAudio" controls=""></audio>
 <br/>
 <label id="musicFileWrapper">
     <span id="musicFileName">Select your music.</span>
-    <input id="rll" type="file" accept="audio/*">
+    <input id="audioInput" type="file" accept="audio/*">
 </label>
 <br/>
 <button id="myBtn" disabled="">Start Music</button>
@@ -113,11 +97,11 @@ void main()
 
 <script type="text/javascript">
 	var files = null;
-	document.getElementById("rll").addEventListener("change", function(event) {
+	document.getElementById("audioInput").addEventListener("change", function(event) {
 		files = event.target.files;
 		document.getElementById("myAudio").src = URL.createObjectURL(files[0]);
 		// load music
-        document.getElementById("rll").style.display = "none";
+        document.getElementById("audioInput").style.display = "none";
         document.getElementById("musicFileName").innerText = "Loading...";
 	}, false);
 	document.getElementById("myAudio").addEventListener('canplaythrough', function(event) { 
