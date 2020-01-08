@@ -2,13 +2,13 @@
 var gl;
 var program;
 
-var N = 10;  // The number of cubes will be (2N+1)^3
+var N = 15;  // The number of cubes will be (2N+1)^3
 
 // var axis = 0;
 // var theta = [ 0, 0, 0 ];
 var musicStarted = 0;
 
-// var moonRotationMatrix = mat4();
+var moonRotationMatrix = mat4();
 
 function startMusic() {
 	if (musicStarted) return;
@@ -232,15 +232,15 @@ window.onload = function init() {
     image.onload = function() { 
         configureTexture( image );
     }
-    image.src = "bump.jpg";
+    image.src = "newp.jpg";
 
 	// uniform variables in shaders
     modelingLoc   = gl.getUniformLocation(program, "modelingMatrix"); 
     viewingLoc    = gl.getUniformLocation(program, "viewingMatrix"); 
     projectionLoc = gl.getUniformLocation(program, "projectionMatrix"); 
-    // lightMatrixLoc= gl.getUniformLocation(program, "lightMatrix"); 
+    lightMatrixLoc= gl.getUniformLocation(program, "lightMatrix"); 
 
-	volumeLoc = gl.getUniformLocation(program, "volume");
+    volumeLoc = gl.getUniformLocation(program, "volume");
 
     // gl.uniform4fv( gl.getUniformLocation(program, "eyePosition"), 
     //    flatten(eyePosition) );
@@ -264,7 +264,7 @@ function render() {
 	// modeling = mult(rotate(theta[xAxis], 1, 0, 0),
 	//                 mult(rotate(theta[yAxis], 0, 1, 0),rotate(theta[zAxis], 0, 0, 1)));
 
-    modeling = rotate(90, 1, 0, 0);
+    modeling = rotate(90.1, 1, 0, 0);
 	
 	viewing = lookAt(vec3(eyePosition), [0,0,0], [0,1,0]);
 
@@ -274,7 +274,7 @@ function render() {
 
     gl.uniformMatrix4fv( viewingLoc,    0, flatten(viewing) );
 	gl.uniformMatrix4fv( projectionLoc, 0, flatten(projection) );
-	// gl.uniformMatrix4fv( lightMatrixLoc,0, flatten(moonRotationMatrix) );
+	gl.uniformMatrix4fv( lightMatrixLoc,0, flatten(moonRotationMatrix) );
 
 	// update data in frequencyData
     if (musicStarted) analyser.getByteFrequencyData(frequencyData);
@@ -288,12 +288,13 @@ function render() {
 	
 	for (i=-N; i<=N; i++) {
 		// render frame based on values in frequencyData
+        // console.log(frequencyData[Math.floor(256/N2)*(i+N)]);
 		if (musicStarted) gl.uniform1f( volumeLoc, frequencyData[Math.floor(256/N2)*(i+N)] /255 * N );	
 
 		for (j=-0; j<=0; j++) {
 			for (k=-0; k<=0; k++) {
 //				var cloned = mult(mult(translate(step*i, step*j, step*k), scale(0.12, 0.12, 0.12)), modeling);
-				var cloned = mult(modeling, mult(translate(step*i, step*j, step*k), scale(size, 0, size*3)));
+				var cloned = mult(modeling, mult(translate(step*i, 0, step*k), scale(step*0.5, 0, step)));
 				
 				gl.uniformMatrix4fv( modelingLoc, 0, flatten(cloned) );
 				gl.drawArrays( gl.TRIANGLES, 0, numVertices );
