@@ -9,39 +9,17 @@ var musicStarted = 0;
 
 var pointsArray = [];
 var volumeArray = [];
-var texCoordsArray = [];
-
-var texture;
-
-var texCoord = [
-    vec2(0, 1),
-    vec2(1, 1),
-    vec2(0, 0),
-    vec2(1, 0),
-];
 
 // place one square into pointsArray
 function square(midX, midY, width, height) {
     let delX = width / 2;
     let delY = height / 2;
     pointsArray.push(vec2(midX - delX, midY + delY)); // left up
-    // console.log(midX - delX, midY + delY); // left up
-    texCoordsArray.push(texCoord[0]);
     pointsArray.push(vec2(midX + delX, midY + delY)); // right up
-    // console.log(midX + delX, midY + delY); // right up
-    texCoordsArray.push(texCoord[1]);
     pointsArray.push(vec2(midX - delX, midY - delY)); // left down
-    // console.log(midX - delX, midY - delY); // left down
-    texCoordsArray.push(texCoord[2]);
     pointsArray.push(vec2(midX + delX, midY + delY)); // right up
-    // console.log(midX + delX, midY + delY); // right up
-    texCoordsArray.push(texCoord[1]);
     pointsArray.push(vec2(midX - delX, midY - delY)); // left down
-    // console.log(midX - delX, midY - delY); // left down
-    texCoordsArray.push(texCoord[2]);
     pointsArray.push(vec2(midX + delX, midY - delY)); // right down
-    console.log(midX, midY); // right down
-    texCoordsArray.push(texCoord[3]);
 }
 
 function colorCube() {
@@ -53,19 +31,6 @@ function colorCube() {
         square( leftBorder+i*delta, 0, width, 0.5 );
 }
 
-// set a image to texture buffer
-// configureImage(src, n) {
-//     var image = new Image();
-//     image.onload = function () {
-//         gl.activeTexture(gl.TEXTURE0 + n);
-//         gl.bindTexture(gl.TEXTURE_2D, this.textures[n]);
-//         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-//     }.bind(this);
-//     image.src = src;
-
-//     return image;
-// }
-
 var analyser;
 var frequencyData = new Uint8Array();
 
@@ -75,20 +40,15 @@ window.onload = function init() {
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-	//
     //  Configure WebGL
-    //
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
+    gl.clearColor( 0.0, 0.0, 0.0, 0.0 );
     
     //  Load shaders and initialize attribute buffers
-    
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
 	// Generate pointsArray[]
-	// We don't use indices and ELEMENT_ARRAY_BUFFER (as in previous example)
-	// because we need to assign different face normals to shared vertices.
 	colorCube();
     
     // vertex array attribute buffer
@@ -100,20 +60,12 @@ window.onload = function init() {
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-    // texture-coordinate array atrribute buffer
-    var tBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, tBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW );
-    
-    var vTexCoord = gl.getAttribLocation( program, "vTexCoord" );
-    gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vTexCoord );
+    // event listeners for range
+    document.getElementById( "redRange" ).oninput = colorPicker;
+    document.getElementById( "greenRange" ).oninput = colorPicker;
+    document.getElementById( "blueRange" ).oninput = colorPicker;
 
-    // setup textures (cat body, cat head)
-    // configureImage('image/cat-body.png', 0);
-    // configureImage('image/cat-head.png', 1);
-
-    //event listeners for buttons 
+    // event listeners for buttons 
     document.getElementById( "myBtn" ).onclick = startMusic;
 
     render();
@@ -164,7 +116,7 @@ function startMusic() {
 	analyser = context.createAnalyser();
 
   // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
-    analyser.smoothingTimeConstant = 0.8;
+    analyser.smoothingTimeConstant = 0.73;
 	analyser.fftSize = 2048;
 
   // we have to connect the MediaElementSource with the analyser 
@@ -181,6 +133,20 @@ function startMusic() {
 	};
 
 	musicStarted = 1;
-	audio.play();
+    audio.play();
+    colorInit();
  //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-	
+}
+
+function colorInit() {
+    var colorLoc = gl.getUniformLocation(program, "uColor");
+    gl.uniform4fv(colorLoc, [1.0, 0.2, 0.3, 1.0]); 
+}
+
+function colorPicker() {
+    let R = document.getElementById( "redRange" ).value / 255;
+    let G = document.getElementById( "greenRange" ).value / 255;
+    let B = document.getElementById( "blueRange" ).value / 255;
+    var colorLoc = gl.getUniformLocation(program, "uColor");
+    gl.uniform4fv(colorLoc, [R, G, B, 1.0]); 
 }
