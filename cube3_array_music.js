@@ -22,8 +22,8 @@ function square(midX, midY, width, height) {
     pointsArray.push(vec2(midX + delX, midY - delY)); // right down
 }
 
-function colorCube() {
-    let padding = 2 / (N * 6 + 4);
+function genCube() {
+    let padding = 2 / ((N * 2 + 1)*2 + N * 2 + 2);
     let width = padding * 2;
     let delta = width + padding;
     let leftBorder = -1+padding+(width/2);
@@ -49,7 +49,7 @@ window.onload = function init() {
     gl.useProgram( program );
 
 	// Generate pointsArray[]
-	colorCube();
+	genCube();
     
     // vertex array attribute buffer
     var vBuffer = gl.createBuffer();
@@ -148,6 +148,5 @@ function colorPicker() {
     let G = document.getElementById( "greenRange" ).value / 255;
     let B = document.getElementById( "blueRange" ).value / 255;
     var colorLoc = gl.getUniformLocation(program, "uColor");
-    console.log(R + ' ' + G + ' ' + B);
     gl.uniform4fv(colorLoc, [R, G, B, 1.0]); 
 }
